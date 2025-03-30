@@ -1,0 +1,4 @@
+# filepath: /home/justin/Documents/projects/virtual_car_wash_attendant/virtual-car-wash-attendant/.gitignore
+__pycache__/
+my_flask_env/
+venv/

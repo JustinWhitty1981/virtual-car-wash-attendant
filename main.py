@@ -1,6 +1,10 @@
 import os
 import time
 from flask import Flask, render_template, request, jsonify
+from imagecapture import VehicleImageCapture
+from mmllm import VehicleAnalyzer
+from decision import EntryDecisionSystem
+from barriercontrol import BarrierControl
 
 app = Flask(__name__)
 
