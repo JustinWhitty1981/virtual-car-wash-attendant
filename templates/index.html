@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Car Wash Entry System</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .container { display: flex; }
+        .live-feed { flex: 1; border: 1px solid #ccc; margin-right: 20px; }
+        .controls { flex: 1; }
+        .vehicle-image { max-width: 100%; margin-bottom: 10px; }
+        .decision { margin: 10px 0; padding: 10px; border-radius: 5px; }
+        .allow { background-color: #dff0d8; color: #3c763d; }
+        .deny { background-color: #f2dede; color: #a94442; }
+        .review { background-color: #fcf8e3; color: #8a6d3b; }
+        button { padding: 10px; margin: 5px; cursor: pointer; }
+        .history { margin-top: 20px; }
+    </style>
+</head>
+<body>
+    <h1>Car Wash Entry Assessment System</h1>
+    
+    <div class="container">
+        <div class="live-feed">
+            <h2>Camera Feed</h2>
+            <img id="camera-feed" src="/video_feed" width="100%" alt="Live Camera Feed">
+            <button id="capture-btn">Capture & Analyze</button>
+        </div>
+        
+        <div class="controls">
+            <h2>Vehicle Assessment</h2>
+            <div id="result-container">
+                <img id="vehicle-image" class="vehicle-image" src="" style="display: none;">
+                <div id="decision" class="decision"></div>
+                <div id="analysis"></div>
+                
+                <div id="override-controls" style="display: none; margin-top: 20px;">
+                    <h3>Override Decision</h3>
+                    <input type="text" id="operator-id" placeholder="Operator ID" required>
+                    <input type="text" id="override-reason" placeholder="Reason for override" required>
+                    <button id="allow-btn">Allow Entry</button>
+                    <button id="deny-btn">Deny Entry</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="history">
+        <h2>Recent Entries</h2>
+        <table id="entry-history" border="1" style="width: 100%;">
+            <thead>
+                <tr>
+                    <th>Time</th>
+                    <th>Image</th>
+                    <th>Decision</th>
+                    <th>Reason</th>
+                </tr>
+            </thead>
+            <tbody id="history-body">
+                <!-- Entries will be added here dynamically -->
+            </tbody>
+        </table>
+    </div>
+    
+    <script>
+        document.getElementById('capture-btn').addEventListener('click', function() {
+            fetch('/capture', {
+                method: 'POST'
+            })
+            .then(response => response.json())
+            .then(data => {
+                // Display results
+                document.getElementById('vehicle-image').src = '/captured_images/' + data.image;
+                document.getElementById('vehicle-image').style.display = 'block';
+                
+                const decisionElement = document.getElementById('decision');
+                decisionElement.textContent = 'Decision: ' + data.decision;
+                decisionElement.className = 'decision ' + data.decision.toLowerCase();
+                
+                document.getElementById('analysis').textContent = data.analysis;
+                document.getElementById('override-controls').style.display = 'block';
+                
+                // Add to history
+                addToHistory(new Date().toLocaleTimeString(), data.image, data.decision, data.analysis);
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Failed to process vehicle');
+            });
+        });
+        
+        document.getElementById('allow-btn').addEventListener('click', function() {
+            overrideDecision('ALLOW');
+        });
+        
+        document.getElementById('deny-btn').addEventListener('click', function() {
+            overrideDecision('DENY');
+        });
+        
+        function overrideDecision(decision) {
+            const operatorId = document.getElementById('operator-id').value;
+            const reason = document.getElementById('override-reason').value;
+            
+            if (!operatorId || !reason) {
+                alert('Operator ID and reason are required');
+                return;
+            }
+            
+            fetch('/override', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    image_path: document.getElementById('vehicle-image').src.split('/').pop(),
+                    decision: decision,
+                    reason: reason,
+                    operator_id: operatorId
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                alert('Decision overridden successfully');
+                
+                // Update UI
+                const decisionElement = document.getElementById('decision');
+                decisionElement.textContent = 'Decision: ' + decision + ' (OVERRIDE)';
+                decisionElement.className = 'decision ' + decision.toLowerCase();
+                
+                // Add to history
+                addToHistory(
+                    new Date().toLocaleTimeString(),
+                    document.getElementById('vehicle-image').src.split('/').pop(),
+                    decision + ' (OVERRIDE)',
+                    'Override by ' + operatorId + ': ' + reason
+                );
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Failed to override decision');
+            });
+        }
+        
+        function addToHistory(time, image, decision, reason) {
+            const historyBody = document.getElementById('history-body');
+            const row = historyBody.insertRow(0);
+            
+            const timeCell = row.insertCell(0);
+            const imageCell = row.insertCell(1);
+            const decisionCell = row.insertCell(2);
+            const reasonCell = row.insertCell(3);
+            
+            timeCell.textContent = time;
+            imageCell.innerHTML = `<img src="/captured_images/${image}" height="50">`;
+            decisionCell.textContent = decision;
+            decisionCell.className = decision.split(' ')[0].toLowerCase();
+            reasonCell.textContent = reason.substring(0, 100) + (reason.length > 100 ? '...' : '');
+        }
+    </script>
+</body>
+</html>
