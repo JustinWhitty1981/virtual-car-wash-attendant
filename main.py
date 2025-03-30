@@ -1,3 +1,5 @@
+from dotenv import load_dotenv
+# Load environment variables from .env file
 import os
 import time
 from flask import Flask, render_template, request, jsonify

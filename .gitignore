@@ -2,3 +2,4 @@
 __pycache__/
 my_flask_env/
 venv/
+.env
