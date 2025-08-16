@@ -1,90 +1,538 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Car Wash Entry System</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        body { font-family: Arial, sans-serif; margin: 20px; }
-        .container { display: flex; }
-        .live-feed { flex: 1; border: 1px solid #ccc; margin-right: 20px; }
-        .controls { flex: 1; }
-        .vehicle-image { max-width: 100%; margin-bottom: 10px; }
-        .decision { margin: 10px 0; padding: 10px; border-radius: 5px; }
-        .allow { background-color: #dff0d8; color: #3c763d; }
-        .deny { background-color: #f2dede; color: #a94442; }
-        .review { background-color: #fcf8e3; color: #8a6d3b; }
-        button { padding: 10px; margin: 5px; cursor: pointer; }
-        .history { margin-top: 20px; }
+        :root {
+            --primary-color: #2563eb;
+            --secondary-color: #1e40af;
+            --success-color: #10b981;
+            --warning-color: #f59e0b;
+            --danger-color: #ef4444;
+            --dark-color: #1f2937;
+            --light-color: #f8fafc;
+            --border-radius: 12px;
+            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: var(--dark-color);
+        }
+
+        .main-container {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow-lg);
+            margin: 2rem auto;
+            max-width: 1400px;
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            padding: 2rem;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grain" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="25" cy="25" r="1" fill="white" opacity="0.1"/><circle cx="75" cy="75" r="1" fill="white" opacity="0.1"/><circle cx="50" cy="10" r="0.5" fill="white" opacity="0.1"/><circle cx="10" cy="60" r="0.5" fill="white" opacity="0.1"/><circle cx="90" cy="40" r="0.5" fill="white" opacity="0.1"/></pattern></defs><rect width="100" height="100" fill="url(%23grain)"/></svg>');
+            pointer-events: none;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+            position: relative;
+            z-index: 1;
+        }
+
+        .card {
+            border: none;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+            transition: all 0.3s ease;
+            overflow: hidden;
+        }
+
+        .card:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .card-header {
+            background: linear-gradient(135deg, #f8fafc, #e2e8f0);
+            border-bottom: 1px solid #e2e8f0;
+            padding: 1.5rem;
+            font-weight: 600;
+            font-size: 1.2rem;
+            color: var(--dark-color);
+        }
+
+        .card-body {
+            padding: 2rem;
+        }
+
+        .camera-placeholder {
+            background: linear-gradient(135deg, #f1f5f9, #e2e8f0);
+            border: 2px dashed #cbd5e1;
+            border-radius: var(--border-radius);
+            height: 300px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            color: #64748b;
+            margin-bottom: 1.5rem;
+            transition: all 0.3s ease;
+        }
+
+        .camera-placeholder:hover {
+            border-color: var(--primary-color);
+            background: linear-gradient(135deg, #eff6ff, #dbeafe);
+        }
+
+        .camera-placeholder i {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            opacity: 0.6;
+        }
+
+        .btn {
+            border-radius: 8px;
+            font-weight: 500;
+            padding: 0.75rem 1.5rem;
+            transition: all 0.3s ease;
+            border: none;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            transition: left 0.5s;
+        }
+
+        .btn:hover::before {
+            left: 100%;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            box-shadow: 0 4px 15px rgba(37, 99, 235, 0.3);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(37, 99, 235, 0.4);
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, var(--success-color), #059669);
+            box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);
+        }
+
+        .btn-success:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(16, 185, 129, 0.4);
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, var(--danger-color), #dc2626);
+            box-shadow: 0 4px 15px rgba(239, 68, 68, 0.3);
+        }
+
+        .btn-danger:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(239, 68, 68, 0.4);
+        }
+
+        .vehicle-image {
+            max-width: 100%;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+            margin-bottom: 1.5rem;
+            transition: all 0.3s ease;
+        }
+
+        .vehicle-image:hover {
+            transform: scale(1.02);
+        }
+
+        .decision {
+            padding: 1rem;
+            border-radius: var(--border-radius);
+            margin: 1rem 0;
+            font-weight: 600;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .decision::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            transition: left 2s;
+        }
+
+        .decision.animate::before {
+            left: 100%;
+        }
+
+        .allow {
+            background: linear-gradient(135deg, #d1fae5, #a7f3d0);
+            color: #065f46;
+            border-left: 4px solid var(--success-color);
+        }
+
+        .deny {
+            background: linear-gradient(135deg, #fee2e2, #fecaca);
+            color: #991b1b;
+            border-left: 4px solid var(--danger-color);
+        }
+
+        .review {
+            background: linear-gradient(135deg, #fef3c7, #fde68a);
+            color: #92400e;
+            border-left: 4px solid var(--warning-color);
+        }
+
+        .form-control {
+            border-radius: 8px;
+            border: 2px solid #e2e8f0;
+            padding: 0.75rem;
+            transition: all 0.3s ease;
+        }
+
+        .form-control:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+        }
+
+        .table {
+            border-radius: var(--border-radius);
+            overflow: hidden;
+            box-shadow: var(--shadow);
+        }
+
+        .table thead th {
+            background: linear-gradient(135deg, var(--dark-color), #374151);
+            color: white;
+            border: none;
+            font-weight: 600;
+            padding: 1rem;
+        }
+
+        .table tbody tr {
+            transition: all 0.3s ease;
+        }
+
+        .table tbody tr:hover {
+            background-color: #f8fafc;
+            transform: scale(1.01);
+        }
+
+        .status-indicator {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-right: 0.5rem;
+            animation: pulse 2s infinite;
+        }
+
+        .status-online {
+            background-color: var(--success-color);
+        }
+
+        .status-offline {
+            background-color: var(--danger-color);
+        }
+
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.5; }
+            100% { opacity: 1; }
+        }
+
+        @keyframes slideInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .animate-slide-up {
+            animation: slideInUp 0.6s ease-out;
+        }
+
+        .loading-spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255,255,255,.3);
+            border-radius: 50%;
+            border-top-color: #fff;
+            animation: spin 1s ease-in-out infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .system-status {
+            background: linear-gradient(135deg, #f0f9ff, #e0f2fe);
+            border-left: 4px solid var(--primary-color);
+            padding: 1rem;
+            border-radius: var(--border-radius);
+            margin-bottom: 2rem;
+        }
+
+        .override-section {
+            background: linear-gradient(135deg, #fefce8, #fef3c7);
+            border-radius: var(--border-radius);
+            padding: 1.5rem;
+            margin-top: 1.5rem;
+            border-left: 4px solid var(--warning-color);
+        }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .main-container {
+                margin: 1rem;
+            }
+            
+            .card-body {
+                padding: 1rem;
+            }
+        }
     </style>
 </head>
 <body>
-    <h1>Car Wash Entry Assessment System</h1>
-    
-    <div class="container">
-        <div class="live-feed">
-            <h2>Camera Feed</h2>
-            <img id="camera-feed" src="/video_feed" width="100%" alt="Live Camera Feed">
-            <button id="capture-btn">Capture & Analyze</button>
-        </div>
-        
-        <div class="controls">
-            <h2>Vehicle Assessment</h2>
-            <div id="result-container">
-                <img id="vehicle-image" class="vehicle-image" src="" style="display: none;">
-                <div id="decision" class="decision"></div>
-                <div id="analysis"></div>
+    <div class="container-fluid">
+        <div class="main-container">
+            <div class="header">
+                <h1><i class="fas fa-car-wash me-3"></i>Car Wash Entry Assessment System</h1>
+                <p>AI-Powered Vehicle Safety & Compatibility Analysis</p>
+            </div>
+            
+            <div class="container-fluid p-4">
+                <div class="system-status">
+                    <div class="d-flex align-items-center">
+                        <span class="status-indicator status-online"></span>
+                        <strong>System Status:</strong>
+                        <span class="ms-2">Online & Ready</span>
+                        <div class="ms-auto">
+                            <small class="text-muted">
+                                <i class="fas fa-clock me-1"></i>
+                                Last Updated: <span id="current-time"></span>
+                            </small>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row g-4">
+                    <!-- Camera Feed Section -->
+                    <div class="col-lg-6">
+                        <div class="card animate-slide-up">
+                            <div class="card-header">
+                                <i class="fas fa-video me-2"></i>Camera Feed
+                            </div>
+                            <div class="card-body text-center">
+                                <div class="camera-placeholder">
+                                    <i class="fas fa-camera"></i>
+                                    <h5>Live Camera Feed</h5>
+                                    <p class="mb-0">Camera ready for vehicle detection</p>
+                                </div>
+                                <button id="capture-btn" class="btn btn-primary btn-lg">
+                                    <i class="fas fa-camera-retro me-2"></i>
+                                    <span class="btn-text">Capture & Analyze</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Vehicle Assessment Section -->
+                    <div class="col-lg-6">
+                        <div class="card animate-slide-up">
+                            <div class="card-header">
+                                <i class="fas fa-search me-2"></i>Vehicle Assessment
+                            </div>
+                            <div class="card-body">
+                                <img id="vehicle-image" class="vehicle-image" src="" style="display: none;" alt="Captured Vehicle">
+                                <div id="decision" class="decision" style="display: none;"></div>
+                                <div id="analysis" class="mb-3" style="display: none;">
+                                    <h6><i class="fas fa-brain me-2"></i>AI Analysis:</h6>
+                                    <p id="analysis-text"></p>
+                                </div>
+                                
+                                <div id="override-controls" class="override-section" style="display: none;">
+                                    <h5><i class="fas fa-user-shield me-2"></i>Manual Override</h5>
+                                    <p class="text-muted mb-3">Override the AI decision if necessary</p>
+                                    <div class="row g-3">
+                                        <div class="col-md-6">
+                                            <label class="form-label">Operator ID</label>
+                                            <input type="text" id="operator-id" class="form-control" placeholder="Enter your ID">
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label class="form-label">Override Reason</label>
+                                            <input type="text" id="override-reason" class="form-control" placeholder="Reason for override">
+                                        </div>
+                                    </div>
+                                    <div class="mt-3">
+                                        <button id="allow-btn" class="btn btn-success me-2">
+                                            <i class="fas fa-check me-2"></i>Allow Entry
+                                        </button>
+                                        <button id="deny-btn" class="btn btn-danger">
+                                            <i class="fas fa-times me-2"></i>Deny Entry
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
                 
-                <div id="override-controls" style="display: none; margin-top: 20px;">
-                    <h3>Override Decision</h3>
-                    <input type="text" id="operator-id" placeholder="Operator ID" required>
-                    <input type="text" id="override-reason" placeholder="Reason for override" required>
-                    <button id="allow-btn">Allow Entry</button>
-                    <button id="deny-btn">Deny Entry</button>
+                <!-- Recent Entries Section -->
+                <div class="row mt-4">
+                    <div class="col-12">
+                        <div class="card animate-slide-up">
+                            <div class="card-header">
+                                <i class="fas fa-history me-2"></i>Recent Entries
+                            </div>
+                            <div class="card-body">
+                                <div class="table-responsive">
+                                    <table class="table table-hover">
+                                        <thead>
+                                            <tr>
+                                                <th><i class="fas fa-clock me-2"></i>Time</th>
+                                                <th><i class="fas fa-image me-2"></i>Image</th>
+                                                <th><i class="fas fa-gavel me-2"></i>Decision</th>
+                                                <th><i class="fas fa-comment me-2"></i>Analysis</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="history-body">
+                                            <!-- Entries will be added here dynamically -->
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
     
-    <div class="history">
-        <h2>Recent Entries</h2>
-        <table id="entry-history" border="1" style="width: 100%;">
-            <thead>
-                <tr>
-                    <th>Time</th>
-                    <th>Image</th>
-                    <th>Decision</th>
-                    <th>Reason</th>
-                </tr>
-            </thead>
-            <tbody id="history-body">
-                <!-- Entries will be added here dynamically -->
-            </tbody>
-        </table>
-    </div>
-    
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
+        // Update current time
+        function updateTime() {
+            const now = new Date();
+            document.getElementById('current-time').textContent = now.toLocaleTimeString();
+        }
+        updateTime();
+        setInterval(updateTime, 1000);
+
+        // Capture and analyze functionality
         document.getElementById('capture-btn').addEventListener('click', function() {
+            const btn = this;
+            const btnText = btn.querySelector('.btn-text');
+            const originalText = btnText.textContent;
+            
+            // Show loading state
+            btn.disabled = true;
+            btnText.innerHTML = '<span class="loading-spinner me-2"></span>Processing...';
+            
             fetch('/capture', {
                 method: 'POST'
             })
             .then(response => response.json())
             .then(data => {
-                // Display results
-                document.getElementById('vehicle-image').src = '/captured_images/' + data.image;
-                document.getElementById('vehicle-image').style.display = 'block';
+                // Display results with animation
+                const vehicleImg = document.getElementById('vehicle-image');
+                vehicleImg.src = '/captured_images/' + data.image;
+                vehicleImg.style.display = 'block';
+                vehicleImg.classList.add('animate-slide-up');
                 
                 const decisionElement = document.getElementById('decision');
                 decisionElement.textContent = 'Decision: ' + data.decision;
                 decisionElement.className = 'decision ' + data.decision.toLowerCase();
+                decisionElement.style.display = 'block';
+                decisionElement.classList.add('animate');
                 
-                document.getElementById('analysis').textContent = data.analysis;
+                const analysisDiv = document.getElementById('analysis');
+                const analysisText = document.getElementById('analysis-text');
+                analysisText.textContent = data.analysis;
+                analysisDiv.style.display = 'block';
+                analysisDiv.classList.add('animate-slide-up');
+                
                 document.getElementById('override-controls').style.display = 'block';
                 
                 // Add to history
                 addToHistory(new Date().toLocaleTimeString(), data.image, data.decision, data.analysis);
+                
+                // Reset button
+                btn.disabled = false;
+                btnText.textContent = originalText;
             })
             .catch(error => {
                 console.error('Error:', error);
-                alert('Failed to process vehicle');
+                alert('Failed to process vehicle. Please try again.');
+                
+                // Reset button
+                btn.disabled = false;
+                btnText.textContent = originalText;
             });
         });
         
@@ -119,41 +567,66 @@
             })
             .then(response => response.json())
             .then(data => {
-                alert('Decision overridden successfully');
-                
-                // Update UI
+                // Update UI with success animation
                 const decisionElement = document.getElementById('decision');
-                decisionElement.textContent = 'Decision: ' + decision + ' (OVERRIDE)';
+                decisionElement.textContent = 'Decision: ' + decision + ' (MANUAL OVERRIDE)';
                 decisionElement.className = 'decision ' + decision.toLowerCase();
+                decisionElement.classList.add('animate');
+                
+                // Show success message
+                const alert = document.createElement('div');
+                alert.className = 'alert alert-success alert-dismissible fade show mt-3';
+                alert.innerHTML = `
+                    <i class="fas fa-check-circle me-2"></i>
+                    Decision successfully overridden by ${operatorId}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                `;
+                document.querySelector('#override-controls').appendChild(alert);
                 
                 // Add to history
                 addToHistory(
                     new Date().toLocaleTimeString(),
                     document.getElementById('vehicle-image').src.split('/').pop(),
                     decision + ' (OVERRIDE)',
-                    'Override by ' + operatorId + ': ' + reason
+                    'Manual override by ' + operatorId + ': ' + reason
                 );
+                
+                // Clear form
+                document.getElementById('operator-id').value = '';
+                document.getElementById('override-reason').value = '';
             })
             .catch(error => {
                 console.error('Error:', error);
-                alert('Failed to override decision');
+                alert('Failed to override decision. Please try again.');
             });
         }
         
         function addToHistory(time, image, decision, reason) {
             const historyBody = document.getElementById('history-body');
             const row = historyBody.insertRow(0);
+            row.classList.add('animate-slide-up');
             
             const timeCell = row.insertCell(0);
             const imageCell = row.insertCell(1);
             const decisionCell = row.insertCell(2);
             const reasonCell = row.insertCell(3);
             
-            timeCell.textContent = time;
-            imageCell.innerHTML = `<img src="/captured_images/${image}" height="50">`;
-            decisionCell.textContent = decision;
-            decisionCell.className = decision.split(' ')[0].toLowerCase();
-            reasonCell.textContent = reason.substring(0, 100) + (reason.length > 100 ? '...' : '');
+            timeCell.innerHTML = `<small class="text-muted">${time}</small>`;
+            imageCell.innerHTML = `<img src="/captured_images/${image}" height="50" class="rounded shadow-sm">`;
+            
+            const decisionClass = decision.split(' ')[0].toLowerCase();
+            let decisionIcon = '';
+            if (decisionClass === 'allow') decisionIcon = 'fas fa-check-circle text-success';
+            else if (decisionClass === 'deny') decisionIcon = 'fas fa-times-circle text-danger';
+            else decisionIcon = 'fas fa-question-circle text-warning';
+            
+            decisionCell.innerHTML = `<i class="${decisionIcon} me-2"></i>${decision}`;
+            reasonCell.innerHTML = `<small>${reason.substring(0, 100)}${reason.length > 100 ? '...' : ''}</small>`;
+            
+            // Limit history to 10 entries
+            while (historyBody.rows.length > 10) {
+                historyBody.deleteRow(historyBody.rows.length - 1);
+            }
         }
     </script>
 </body>

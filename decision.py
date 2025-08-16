@@ -1,3 +1,6 @@
+import json
+import time
+
 class EntryDecisionSystem:
     def __init__(self, analyzer, log_file="car_wash_entries.log"):
         self.analyzer = analyzer

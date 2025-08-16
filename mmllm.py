@@ -2,6 +2,7 @@ import requests
 import base64
 import json
 import os
+import time
 from openai import OpenAI
 
 class VehicleAnalyzer:
@@ -14,7 +15,7 @@ class VehicleAnalyzer:
             base64_image = base64.b64encode(image_file.read()).decode('utf-8')
         
         response = self.client.chat.completions.create(
-            model="gpt-4-vision-preview",  # Use the appropriate multi-modal model
+            model="gpt-4o",  # Use the current multi-modal model
             messages=[
                 {
                     "role": "system",

@@ -1,8 +1,10 @@
 from dotenv import load_dotenv
 # Load environment variables from .env file
+load_dotenv()
+
 import os
 import time
-from flask import Flask, render_template, request, jsonify
+from flask import Flask, render_template, request, jsonify, send_from_directory
 from imagecapture import VehicleImageCapture
 from mmllm import VehicleAnalyzer
 from decision import EntryDecisionSystem
@@ -64,5 +66,11 @@ def override():
     
     return jsonify({"status": "success", "decision": result})
 
+@app.route('/captured_images/<filename>')
+def captured_images(filename):
+    """Serve captured images"""
+    return send_from_directory('captured_images', filename)
+
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5000)
+    load_dotenv()  # Load environment variables
+    app.run(host='0.0.0.0', port=5000, debug=True)
