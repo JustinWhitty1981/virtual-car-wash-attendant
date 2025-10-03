@@ -281,12 +281,6 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 - **Bootstrap** for the responsive UI components
 - **Font Awesome** for the beautiful icons
 
-## 📞 Support
-
-- **Issues**: [GitHub Issues](https://github.com/JustinWhitty1981/virtual-car-wash-attendant/issues)
-- **Discussions**: [GitHub Discussions](https://github.com/JustinWhitty1981/virtual-car-wash-attendant/discussions)
-- **Email**: support@carwashsystem.com
-
 ## 🗺️ Roadmap
 
 ### Version 2.0 (Planned)
